@@ -199,8 +199,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!badge) return;
 
     const unreadCount = notifications.filter((n) => !n.read).length;
-    badge.textContent = unreadCount;
-    badge.classList.toggle("hidden", unreadCount === 0);
+    badge.textContent = unreadCount > 99 ? "99+" : unreadCount;
+    badge.classList.toggle("show", unreadCount > 0);
   }
 
   function showToast(title, body, url) {
