@@ -55,10 +55,21 @@ class TicketController extends Controller
     }
 
     if ($user->role == 'agent') {
-      $activeTab = $request->input('tab') === 'all' ? 'all' : 'my-category';
+      $requestedTab = $request->input('tab');
+      if (in_array($requestedTab, ['all', 'my-tickets', 'category-tickets'])) {
+        $activeTab = $requestedTab;
+      } else {
+        $activeTab = 'my-tickets';
+      }
 
-      if ($activeTab === 'my-category') {
+      if ($activeTab === 'my-tickets') {
         $query->where('agent_id', $user->id);
+      } elseif ($activeTab === 'category-tickets') {
+        if ($user->category_id) {
+          $query->where('category_id', $user->category_id);
+        } else {
+          $query->where('id', '<', 0);
+        }
       }
     }
 

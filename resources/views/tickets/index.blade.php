@@ -2,6 +2,7 @@
 
 @section('title', 'Tickets')
 @section('page-title', 'Tickets View')
+@section('body-class', 'tickets-index-page')
 
 @section('content')
   @php
@@ -15,9 +16,13 @@
         class="tab-link {{ $activeTab === 'all' ? 'active' : '' }}">
         All Tickets
       </a>
-      <a href="{{ route('tickets.index', array_merge(request()->except(['page', 'tab']), ['tab' => 'my-category'])) }}"
-        class="tab-link {{ $activeTab === 'my-category' ? 'active' : '' }}">
+      <a href="{{ route('tickets.index', array_merge(request()->except(['page', 'tab']), ['tab' => 'my-tickets'])) }}"
+        class="tab-link {{ $activeTab === 'my-tickets' ? 'active' : '' }}">
         My Tickets
+      </a>
+      <a href="{{ route('tickets.index', array_merge(request()->except(['page', 'tab']), ['tab' => 'category-tickets'])) }}"
+        class="tab-link {{ $activeTab === 'category-tickets' ? 'active' : '' }}">
+        Team Tickets
       </a>
     </div>
   @endif

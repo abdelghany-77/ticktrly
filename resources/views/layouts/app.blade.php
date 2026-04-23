@@ -23,7 +23,7 @@
   @yield('head')
 </head>
 
-<body>
+<body class="@yield('body-class')">
   @auth
     <div class="app-wrapper">
       <div id="sidebar-overlay" class="sidebar-overlay"></div>
@@ -37,6 +37,13 @@
           </div>
           Ticketly
         </a>
+
+        <button id="desktop-sidebar-toggle" class="sidebar-toggle-btn" type="button" aria-label="Toggle sidebar"
+          aria-expanded="false">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
 
         <nav class="sidebar-nav">
           <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
@@ -234,9 +241,54 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      const appWrapper = document.querySelector('.app-wrapper');
       const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const desktopSidebarToggle = document.getElementById('desktop-sidebar-toggle');
       const sidebar = document.getElementById('main-sidebar');
       const overlay = document.getElementById('sidebar-overlay');
+      const desktopMedia = window.matchMedia('(min-width: 768px)');
+
+      const setDesktopSidebarState = (collapsed) => {
+        if (!appWrapper) {
+          return;
+        }
+
+        appWrapper.classList.toggle('sidebar-collapsed', collapsed);
+
+        if (desktopSidebarToggle) {
+          desktopSidebarToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+          desktopSidebarToggle.classList.toggle('collapsed', collapsed);
+        }
+      };
+
+      if (appWrapper && desktopMedia.matches) {
+        setDesktopSidebarState(true);
+      }
+
+      if (desktopSidebarToggle) {
+        desktopSidebarToggle.addEventListener('click', () => {
+          if (!appWrapper) {
+            return;
+          }
+
+          const isCollapsed = appWrapper.classList.toggle('sidebar-collapsed');
+
+          desktopSidebarToggle.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+          desktopSidebarToggle.classList.toggle('collapsed', isCollapsed);
+        });
+      }
+
+      desktopMedia.addEventListener('change', (event) => {
+        if (!appWrapper) {
+          return;
+        }
+
+        if (event.matches) {
+          setDesktopSidebarState(true);
+        } else {
+          appWrapper.classList.remove('sidebar-collapsed');
+        }
+      });
 
       if (mobileMenuBtn && sidebar && overlay) {
         mobileMenuBtn.addEventListener('click', () => {
