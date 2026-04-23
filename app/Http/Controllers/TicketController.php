@@ -66,9 +66,15 @@ class TicketController extends Controller
     }
 
     if ($search) {
-      $query->where(function ($q) use ($search) {
+      $normalizedSearch = ltrim($search, '#');
+
+      $query->where(function ($q) use ($search, $normalizedSearch) {
         $q->where('title', 'like', "%{$search}%")
           ->orWhere('description', 'like', "%{$search}%");
+
+        if (is_numeric($normalizedSearch)) {
+          $q->orWhere('id', (int) $normalizedSearch);
+        }
       });
     }
 
