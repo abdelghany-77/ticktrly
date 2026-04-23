@@ -17,7 +17,12 @@ class TicketStatusChangedNotification extends Notification
 
   public function via(object $notifiable): array
   {
-    return ['database'];
+    return ['database', 'broadcast'];
+  }
+
+  public function broadcastType(): string
+  {
+    return 'ticket.status-changed';
   }
 
   public function toArray(object $notifiable): array

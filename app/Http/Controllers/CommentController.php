@@ -53,13 +53,13 @@ class CommentController extends Controller
     if ($user->role == 'agent' && is_null($ticket->agent_id)) {
       $ticket->update(['agent_id' => $user->id]);
       $ticket->load('agent');
-      broadcast(new TicketAssignedEvent($ticket))->toOthers();
+      broadcast(new TicketAssignedEvent($ticket));
 
       $user->notify(new TicketAssignedNotification($ticket));
     }
 
     $comment->load('user');
-    broadcast(new NewCommentAddedEvent($ticket, $comment))->toOthers();
+    broadcast(new NewCommentAddedEvent($ticket, $comment));
 
     if ($ticket->user_id !== $user->id) {
       $ticketCreator = User::find($ticket->user_id);

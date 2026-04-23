@@ -66,13 +66,14 @@ class TicketController extends Controller
     }
 
     if ($search) {
+      $search = trim($search);
       $normalizedSearch = ltrim($search, '#');
 
       $query->where(function ($q) use ($search, $normalizedSearch) {
         $q->where('title', 'like', "%{$search}%")
           ->orWhere('description', 'like', "%{$search}%");
 
-        if (is_numeric($normalizedSearch)) {
+        if (ctype_digit($normalizedSearch)) {
           $q->orWhere('id', (int) $normalizedSearch);
         }
       });
@@ -143,7 +144,7 @@ class TicketController extends Controller
 
     if (!$ticket->solved_by_ai) {
       $ticket->load(['user', 'category']);
-      broadcast(new NewTicketCreatedEvent($ticket))->toOthers();
+      broadcast(new NewTicketCreatedEvent($ticket));
 
       $recipients = User::where(function ($q) use ($ticket) {
         $q->where('role', 'agent')->where('category_id', $ticket->category_id);
@@ -221,7 +222,7 @@ class TicketController extends Controller
       'new_value' => $data['status'],
     ]);
 
-    broadcast(new TicketStatusChangedEvent($ticket, $oldStatus, $user->id))->toOthers();
+    broadcast(new TicketStatusChangedEvent($ticket, $oldStatus, $user->id));
 
     if ($ticket->user_id !== $user->id) {
       $ticketCreator = User::find($ticket->user_id);
@@ -298,7 +299,7 @@ class TicketController extends Controller
 
     if ($ticket->agent_id) {
       $ticket->load('agent');
-      broadcast(new TicketAssignedEvent($ticket))->toOthers();
+      broadcast(new TicketAssignedEvent($ticket));
 
       $agent = User::find($ticket->agent_id);
       if ($agent) {

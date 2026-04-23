@@ -18,7 +18,12 @@ class NewCommentNotification extends Notification
 
   public function via(object $notifiable): array
   {
-    return ['database'];
+    return ['database', 'broadcast'];
+  }
+
+  public function broadcastType(): string
+  {
+    return 'comment.added';
   }
 
   public function toArray(object $notifiable): array

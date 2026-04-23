@@ -14,7 +14,12 @@ class TicketAssignedNotification extends Notification
 
   public function via(object $notifiable): array
   {
-    return ['database'];
+    return ['database', 'broadcast'];
+  }
+
+  public function broadcastType(): string
+  {
+    return 'ticket.assigned';
   }
 
   public function toArray(object $notifiable): array

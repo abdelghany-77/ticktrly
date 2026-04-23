@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Notifications\NewCommentNotification;
+use App\Notifications\TicketAssignedNotification;
+use App\Notifications\TicketStatusChangedNotification;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -62,5 +65,22 @@ class User extends Authenticatable
   public function isAdmin()
   {
     return $this->role == 'admin';
+  }
+
+  public function receivesBroadcastNotificationsOn(object $notification): string
+  {
+    if ($notification instanceof TicketAssignedNotification) {
+      return 'agent.' . $this->id;
+    }
+
+    if ($notification instanceof NewCommentNotification) {
+      return $this->role === 'agent' ? 'agent.' . $this->id : 'user.' . $this->id;
+    }
+
+    if ($notification instanceof TicketStatusChangedNotification) {
+      return 'user.' . $this->id;
+    }
+
+    return $this->role === 'agent' ? 'agent.' . $this->id : 'user.' . $this->id;
   }
 }

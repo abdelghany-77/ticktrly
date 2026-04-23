@@ -14,20 +14,32 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchStoredNotifications();
 
   if (userRole === "user") {
+    bindBroadcastNotifications(`user.${userId}`);
+  }
+
+  if (userRole === "agent") {
+    bindBroadcastNotifications(`agent.${userId}`);
+  }
+
+  if (userRole === "user") {
     window.Echo.private(`user.${userId}`)
       .listen(".comment.added", (e) => {
         pushNotification({
+          type: "comment.added",
           title: "New Comment",
           body: `${e.commenterName} commented on "${e.ticketTitle}"`,
           url: `/tickets/${e.ticketId}`,
+          ticketId: e.ticketId,
         });
       })
       .listen(".ticket.status-changed", (e) => {
         const status = e.newStatus.replace("_", " ");
         pushNotification({
+          type: "ticket.status-changed",
           title: "Status Changed",
           body: `"${e.title}" is now ${status}`,
           url: `/tickets/${e.ticketId}`,
+          ticketId: e.ticketId,
         });
       });
   }
@@ -35,9 +47,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (userRole === "agent") {
     window.Echo.private(`agent.${userId}`).listen(".ticket.assigned", (e) => {
       pushNotification({
+        type: "ticket.assigned",
         title: "Ticket Assigned",
         body: `You were assigned to "${e.title}"`,
         url: `/tickets/${e.ticketId}`,
+        ticketId: e.ticketId,
       });
     });
 
@@ -46,9 +60,11 @@ document.addEventListener("DOMContentLoaded", () => {
         ".ticket.created",
         (e) => {
           pushNotification({
+            type: "ticket.created",
             title: "New Ticket",
             body: `"${e.title}" by ${e.userName} in ${e.categoryName}`,
             url: `/tickets/${e.ticketId}`,
+            ticketId: e.ticketId,
           });
 
           prependTicketRow(e);
@@ -60,20 +76,37 @@ document.addEventListener("DOMContentLoaded", () => {
   if (userRole === "admin") {
     window.Echo.private(`agent.${userId}`).listen(".ticket.assigned", (e) => {
       pushNotification({
+        type: "ticket.assigned",
         title: "Ticket Assigned",
         body: `You were assigned to "${e.title}"`,
         url: `/tickets/${e.ticketId}`,
+        ticketId: e.ticketId,
       });
     });
 
     window.Echo.private("admins").listen(".ticket.created", (e) => {
       pushNotification({
+        type: "ticket.created",
         title: "New Ticket",
         body: `"${e.title}" by ${e.userName} in ${e.categoryName}`,
         url: `/tickets/${e.ticketId}`,
+        ticketId: e.ticketId,
       });
 
       prependTicketRow(e);
+    });
+  }
+
+  function bindBroadcastNotifications(channelName) {
+    window.Echo.private(channelName).notification((notification) => {
+      pushNotification({
+        type: notification.type || "notification",
+        title: notification.title,
+        body: notification.body,
+        url: notification.url,
+        ticketId: notification.ticket_id,
+        id: notification.id,
+      });
     });
   }
 
@@ -88,14 +121,29 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((data) => {
         if (data.notifications && data.notifications.length > 0) {
           data.notifications.forEach((n) => {
-            notifications.push({
-              id: n.id,
+            const fingerprint = buildNotificationKey({
+              type: n.type,
               title: n.title,
               body: n.body,
               url: n.url,
+              ticketId: n.ticket_id,
+            });
+
+            if (notifications.some((existing) => existing.fingerprint === fingerprint)) {
+              return;
+            }
+
+            notifications.push({
+              id: n.id,
+              type: n.type,
+              title: n.title,
+              body: n.body,
+              url: n.url,
+              ticketId: n.ticket_id,
               time: new Date(n.time),
               read: n.read,
               fromDb: true,
+              fingerprint,
             });
           });
 
@@ -108,14 +156,30 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
-  function pushNotification({ title, body, url }) {
-    const notification = {
+  function pushNotification({ title, body, url, type = "notification", ticketId = null, id = null }) {
+    const fingerprint = buildNotificationKey({
+      type,
       title,
       body,
       url,
+      ticketId: ticketId ?? id,
+    });
+
+    if (notifications.some((n) => n.fingerprint === fingerprint)) {
+      return;
+    }
+
+    const notification = {
+      id,
+      type,
+      title,
+      body,
+      url,
+      ticketId,
       time: new Date(),
       read: false,
       fromDb: false,
+      fingerprint,
     };
     notifications.unshift(notification);
 
@@ -124,6 +188,10 @@ document.addEventListener("DOMContentLoaded", () => {
     updateBadge();
     showToast(title, body, url);
     renderDropdown();
+  }
+
+  function buildNotificationKey({ type, title, body, url, ticketId }) {
+    return [type || "", title || "", body || "", url || "", ticketId || ""].join("|");
   }
 
   function updateBadge() {
