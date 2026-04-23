@@ -55,13 +55,10 @@ class TicketController extends Controller
     }
 
     if ($user->role == 'agent') {
-      if ($request->input('tab') == 'my-category') {
-        $activeTab = 'my-category';
-        if ($user->category_id) {
-          $query->where('category_id', $user->category_id);
-        } else {
-          $query->where('id', '<', 0);
-        }
+      $activeTab = $request->input('tab') === 'all' ? 'all' : 'my-category';
+
+      if ($activeTab === 'my-category') {
+        $query->where('agent_id', $user->id);
       }
     }
 

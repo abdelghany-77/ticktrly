@@ -11,18 +11,23 @@
 
   @if (auth()->user()->role === 'agent')
     <div class="tabs-bar">
-      <a href="{{ route('tickets.index', ['tab' => 'all']) }}" class="tab-link {{ $activeTab === 'all' ? 'active' : '' }}">
+      <a href="{{ route('tickets.index', array_merge(request()->except(['page', 'tab']), ['tab' => 'all'])) }}"
+        class="tab-link {{ $activeTab === 'all' ? 'active' : '' }}">
         All Tickets
       </a>
-      <a href="{{ route('tickets.index', ['tab' => 'my-category']) }}"
+      <a href="{{ route('tickets.index', array_merge(request()->except(['page', 'tab']), ['tab' => 'my-category'])) }}"
         class="tab-link {{ $activeTab === 'my-category' ? 'active' : '' }}">
-        My Category Tickets
+        My Tickets
       </a>
     </div>
   @endif
 
   <div class="filter-bar">
     <form method="GET" action="{{ route('tickets.index') }}">
+      @if (auth()->user()->role === 'agent')
+        <input type="hidden" name="tab" value="{{ $activeTab }}">
+      @endif
+
       <div class="search-field-wrapper">
         <div class="search-icon">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
