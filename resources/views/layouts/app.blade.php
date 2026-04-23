@@ -26,8 +26,9 @@
 <body>
   @auth
     <div class="app-wrapper">
+      <div id="sidebar-overlay" class="sidebar-overlay"></div>
       <!-- Sidebar -->
-      <aside class="sidebar">
+      <aside id="main-sidebar" class="sidebar">
         <a href="{{ route('dashboard') }}" class="sidebar-logo">
           <div class="sidebar-logo-icon">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -111,6 +112,12 @@
       <div class="main-area">
         <header class="top-header">
           <div class="top-header-left">
+            <button id="mobile-menu-btn" class="mobile-menu-btn">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="24"
+                height="24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
             <h1 class="page-title">@yield('page-title', 'Overview')</h1>
           </div>
           <div class="top-header-right">
@@ -224,6 +231,26 @@
 
   {{-- Toast notification container --}}
   <div id="toast-container"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const sidebar = document.getElementById('main-sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+
+      if (mobileMenuBtn && sidebar && overlay) {
+        mobileMenuBtn.addEventListener('click', () => {
+          sidebar.classList.add('sidebar-open');
+          overlay.classList.add('active');
+        });
+
+        overlay.addEventListener('click', () => {
+          sidebar.classList.remove('sidebar-open');
+          overlay.classList.remove('active');
+        });
+      }
+    });
+  </script>
 </body>
 
 </html>

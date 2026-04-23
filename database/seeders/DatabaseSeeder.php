@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\Ticket;
 use App\Models\User;
-use Faker\Factory as Faker;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -100,11 +99,69 @@ class DatabaseSeeder extends Seeder
     }
 
     // ── 5. Realistic English Tickets (150 tickets) ───────────────────────────
-    $faker = Faker::create();
     $statuses = ['open', 'in_progress', 'resolved', 'closed'];
     $priorities = ['low', 'medium', 'high'];
     $allUsers = User::where('role', 'user')->get();
     $allCategories = Category::all();
+
+    $titleWords = [
+      'email',
+      'access',
+      'system',
+      'printer',
+      'network',
+      'account',
+      'laptop',
+      'server',
+      'update',
+      'request',
+      'connection',
+      'application',
+      'permissions',
+      'error',
+      'login',
+      'dashboard',
+      'ticket',
+      'service',
+      'hardware',
+      'software',
+    ];
+
+    $descriptionSentences = [
+      'The issue started this morning after a normal restart.',
+      'I have already tried basic troubleshooting steps without success.',
+      'This is affecting my daily work and needs quick attention.',
+      'Please investigate and advise on the next steps.',
+      'The error appears consistently across multiple attempts.',
+      'I can provide screenshots or logs if needed.',
+      'The problem occurs on the latest installed version.',
+      'This started happening after a recent system update.',
+      'Other team members reported a similar behavior.',
+      'A temporary workaround is possible but not sustainable.',
+    ];
+
+    $randomElement = static fn(array $items) => $items[array_rand($items)];
+    $randomBool = static fn(int $truePercentage = 50) => random_int(1, 100) <= $truePercentage;
+    $randomTitle = static function (array $words): string {
+      $count = random_int(4, 8);
+      $chosen = [];
+
+      for ($j = 0; $j < $count; $j++) {
+        $chosen[] = $words[array_rand($words)];
+      }
+
+      return ucfirst(implode(' ', $chosen));
+    };
+    $randomParagraph = static function (array $sentences): string {
+      $count = random_int(2, 4);
+      $parts = [];
+
+      for ($j = 0; $j < $count; $j++) {
+        $parts[] = $sentences[array_rand($sentences)];
+      }
+
+      return implode(' ', $parts);
+    };
 
     $englishTickets = [
       ['title' => 'Cannot access corporate email', 'description' => 'I am getting an invalid password error when trying to access Outlook. Please reset my account.'],
@@ -133,22 +190,22 @@ class DatabaseSeeder extends Seeder
       $ticketData = $i < count($englishTickets)
         ? $englishTickets[$i]
         : [
-          'title' => rtrim($faker->sentence(rand(4, 8)), '.'),
-          'description' => $faker->paragraph(rand(2, 4))
+          'title' => $randomTitle($titleWords),
+          'description' => $randomParagraph($descriptionSentences),
         ];
 
       $category = $allCategories->random();
 
       $categoryAgents = User::where('role', 'agent')->where('category_id', $category->id)->get();
-      $agent = $faker->boolean(70) && $categoryAgents->isNotEmpty() ? $categoryAgents->random() : null;
-      $status = $faker->randomElement($statuses);
+      $agent = $randomBool(70) && $categoryAgents->isNotEmpty() ? $categoryAgents->random() : null;
+      $status = $randomElement($statuses);
 
       // If it's a new ticket (open), usually there's no agent
-      if ($status === 'open' && $faker->boolean(50)) {
+      if ($status === 'open' && $randomBool(50)) {
         $agent = null;
       }
       // If it has an agent and was open, maybe it's in_progress
-      if ($agent && $status === 'open' && $faker->boolean(50)) {
+      if ($agent && $status === 'open' && $randomBool(50)) {
         $status = 'in_progress';
       }
 
@@ -156,7 +213,7 @@ class DatabaseSeeder extends Seeder
         'title'       => $ticketData['title'],
         'description' => $ticketData['description'],
         'status'      => $status,
-        'priority'    => $faker->randomElement($priorities),
+        'priority'    => $randomElement($priorities),
         'category_id' => $category->id,
         'user_id'     => $allUsers->random()->id,
         'agent_id'    => $agent ? $agent->id : null,

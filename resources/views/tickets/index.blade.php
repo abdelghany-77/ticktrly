@@ -11,8 +11,7 @@
 
   @if (auth()->user()->role === 'agent')
     <div class="tabs-bar">
-      <a href="{{ route('tickets.index', ['tab' => 'all']) }}"
-        class="tab-link {{ $activeTab === 'all' ? 'active' : '' }}">
+      <a href="{{ route('tickets.index', ['tab' => 'all']) }}" class="tab-link {{ $activeTab === 'all' ? 'active' : '' }}">
         All Tickets
       </a>
       <a href="{{ route('tickets.index', ['tab' => 'my-category']) }}"
@@ -55,7 +54,7 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>Details</th>
+            <th>ID / Details</th>
             <th>Category</th>
             <th>Status</th>
             @if ($canSeePriority)
@@ -70,7 +69,7 @@
           @forelse ($tickets as $ticket)
             <tr>
               <td>
-                <div class="cell-name">{{ $ticket->title }}</div>
+                <div class="cell-name">#{{ $ticket->id }} - {{ $ticket->title }}</div>
               </td>
               <td class="cell-light">
                 {{ $ticket->category->name ?? 'None' }}

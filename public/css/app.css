@@ -592,6 +592,17 @@ ol {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
   z-index: 50;
 }
+@media (max-width: 640px) {
+  .notification-dropdown {
+    position: fixed;
+    top: 4.5rem;
+    right: 0.75rem;
+    left: 0.75rem;
+    margin-top: 0;
+    width: auto;
+    max-height: min(70vh, 24rem);
+  }
+}
 .notification-dropdown-header {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #334155;
@@ -618,6 +629,7 @@ ol {
   font-size: 0.75rem;
   color: #cbd5e1;
   margin-top: 0.125rem;
+  overflow-wrap: anywhere;
 }
 .notification-item-time {
   font-size: 0.625rem;
@@ -2397,4 +2409,60 @@ ol {
 /* -------- Inline form (used in tables) -------- */
 .inline-form {
   display: inline;
+}
+
+/* Responsive Sidebar Overrides */
+.mobile-menu-btn {
+  display: block;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-right: 0.5rem;
+}
+@media (min-width: 768px) {
+  .mobile-menu-btn {
+    display: none;
+  }
+}
+
+.sidebar.sidebar-open {
+  display: flex !important;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  width: 100%;
+  max-width: 16rem;
+  background: #0f172a;
+}
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}
+.sidebar-overlay.active {
+  display: block;
+}
+
+/* Mobile New Ticket button */
+.mobile-new-ticket {
+  display: block;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  text-align: center;
+  border-radius: 0.5rem;
+  background: #2563eb;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+}
+@media (min-width: 768px) {
+  .mobile-new-ticket {
+    display: none;
+  }
 }

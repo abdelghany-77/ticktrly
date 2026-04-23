@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Ticket Details')
-@section('page-title', 'Ticket Details')
+@section('title', 'Ticket #' . $ticket->id . ' Details')
+@section('page-title', 'Ticket #' . $ticket->id . ' Details')
 
 @section('content')
   @php
@@ -56,7 +56,7 @@
     </div>
 
     <div class="detail-sidebar">
-      <h3 class="section-title" style="margin-bottom:0.75rem">Details</h3>
+      <h3 class="section-title" style="margin-bottom:0.75rem">Ticket #{{ $ticket->id }} Details</h3>
       <div class="detail-info-list">
         <p class="detail-label">Owner: <span class="detail-value">{{ $ticket->user->name ?? 'N/A' }}</span></p>
         <p class="detail-label">Agent: <span class="detail-value">{{ $ticket->agent->name ?? 'Unassigned' }}</span></p>

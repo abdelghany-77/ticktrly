@@ -8,6 +8,16 @@
     $canSeePriority = auth()->user()->role === 'agent' || auth()->user()->role === 'admin';
   @endphp
 
+  @if (auth()->user()->role === 'user')
+    <a href="{{ route('tickets.create') }}" class="mobile-new-ticket">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+        style="width:1.25rem;height:1.25rem;display:inline-block;vertical-align:text-bottom;margin-right:0.25rem;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+      </svg>
+      Create New Ticket
+    </a>
+  @endif
+
   {{-- ── Stat Cards ── --}}
   <div class="stats-grid">
     <!-- Stat Card 1 -->
@@ -128,7 +138,7 @@
 
     <!-- headers -->
     <div class="activity-table-header">
-      <div style="width:50%">Details</div>
+      <div style="width:50%">ID / Details</div>
       <div style="display:flex;width:50%;justify-content:flex-end;gap:2.5rem">
         @if ($canSeePriority)
           <div class="badge-col">Priority</div>
@@ -142,7 +152,7 @@
         <div class="activity-row">
           <div class="activity-row-details">
             <a href="{{ route('tickets.show', $ticket) }}" class="activity-row-title">
-              {{ $ticket->title }}
+              #{{ $ticket->id }} - {{ $ticket->title }}
             </a>
             <p class="activity-row-subtitle">
               Created {{ $ticket->created_at->diffForHumans() }} by {{ $ticket->user->name ?? 'User' }}
